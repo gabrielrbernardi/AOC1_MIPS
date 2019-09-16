@@ -53,6 +53,7 @@
     li $t1, 2					# $t1 receive value 2
     div $t0, $t1				# execute the division operation, to know if the number is even or odd
     mfhi $t2					# $t2 receive the rest of division
+    
     move $a0, $t0				# move the typed number to $a0 registrator
     li $v0, 1					# print the integer value
     syscall					# calling system
