@@ -3,19 +3,22 @@
 # Author: Gabriel Ribeiro Bernardi              #
 # Registration: 11821BCC036                     #
 # Start Date: 09/13/2019                        #
-# End Date: 09/15/2019                          #
+# End Date: 09/16/2019                          #
 # Programming Language: Assembly MIPS           #
 #################################################
-#Description (pt_BR): Fazer um programa que faca a Conjectura de Collatz
+#Description (pt_BR): Fazer um programa que faca a Conjectura de Collatz. Filtrar os valores menores ou iguais a zero.
+#Description (en_US): Make a program that makes a Collatz Conjecture. Filter values less than or equals zero.
 
 .data
     Intro: .asciiz "++++++++++++++++++++++++++++++\nCollatz conjecture\n\n"
     Number: .asciiz "Type a value to K: "
     Sequence: .asciiz "\nThe sequence of Collatz conjecture is:\n"
-    Odd: .asciiz "\nOdd number"
     Space: .asciiz " "
-    End: .asciiz "\n++++++++++++++++++++++++++++++"
-    
+    Zero: .asciiz "\nThe value is zero"
+    LessThan: .asciiz "\nThe value is less than zero"
+    NotAllowed: .asciiz "\nValue not allowed"
+    PlusSimbols: .asciiz "\n++++++++++++++++++++++++++++++"
+    End: .asciiz "\n\nEnd of program\n++++++++++++++++++++++++++++++"
     
 .text
     li $v0, 4					# Preparing to receive a String and put in $v0 registrator
@@ -28,13 +31,25 @@
     
     li $v0, 5					# Receive an Integer numbem from user keyboard
     syscall					# Run this previous intruction too
+ 
+    #Filter the values if this typed numbers is less than or equals 0   
+    beq $v0, 0, zero				# if the typed value is equals zero, jump to zero label and then close the program
+    
     move $t0, $v0				# Move the typed Integer number stored on $v0 registrator to $t0 registrator
-    #li $v0, 4
-    #la $a0, End
-    #syscall
+
+    li $s7, 0					# set value of $s7 registrator to zero
+    slt $t4, $t0, $s7				# use this to determinate if $t0 is less than $s7. if the step is true, $t4 receive 1 else $t4 receive 0
+    beq $t4, 1, lessThan			# if $t4 registrator is equals, jump to lessThan label
+    #End of filter
+    
     li $v0, 4					# Preparing to receive a String and put in $v0 registrator
-    la $a0, Sequence				# Print a label "Intro" and in the next instruction execute this previous instructions
+    la $a0, PlusSimbols				# Print a label "PlusSimbols" and in the next instruction execute this previous instructions
     syscall					# Execute the instructions
+    
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, Sequence				# Print a label "Sequence" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
     li $t1, 2					# $t1 receive value 2
     div $t0, $t1				# execute the division operation, to know if the number is even or odd
     mfhi $t2					# $t2 receive the rest of division
@@ -57,7 +72,7 @@ loop:
     la $a0, Space				# print a Space string stored in the label
     syscall					# calling system
 
-    li $t5, 2					# $t1 receive value 2
+    li $t5, 2					# $t5 receive value 2
     div $t8, $t5				# execute the division operation, to know if the number is even or odd
     mfhi $t2					# $t2 receive the rest of division
     syscall					# calling system
@@ -73,7 +88,7 @@ odd:
     syscall					# calling system
     move $t8, $a0
     
-    j loop					# jum to end
+    j loop					# jump to end
     
 even:
     div $t0, $t0, 2				# Execute the division operation by 2
@@ -84,6 +99,35 @@ even:
 
     j loop					# jump to end
 
+zero:
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, PlusSimbols				# Print a label "PlusSimbols" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, Zero				# Print a label "Zero" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, NotAllowed				# Print a label "NotAllowed" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+
+    j end					# jump to label end
+    
+lessThan:
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, PlusSimbols				# Print a label "PlusSimbols" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, LessThan				# Print a label "LessThan" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
+    li $v0, 4					# Preparing to receive a String and put in $v0 registrator
+    la $a0, NotAllowed				# Print a label "NotAllowed" and in the next instruction execute this previous instructions
+    syscall					# Execute the instructions
+    
+    j end					# jump to label end
 
 end: 
     li $v0, 4					# Preparing to receive a String and put in $v0 registrator
