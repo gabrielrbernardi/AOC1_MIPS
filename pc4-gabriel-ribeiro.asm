@@ -20,6 +20,8 @@
     Separators: .asciiz "-----=====-----=====-----=====-----=====\n"
     Intro: .asciiz "CPF check digits\n"
     CPF: .space 36										# Allocate a space for the array. As CPF have 9 numbers, we will allocate 36 bytes, because 4 bytes * 9 numbers
+    CPF1: .space 36										# allocate a space for the secundary array to receive the resulf of miltiplication.
+    cpfDigit: .space 44								# allocate a space for array to receive the 
     Input: .asciiz "Input CPF digits: "
     newline: .asciiz "\n"
     Output: .asciiz "The CPF numbers is: "
@@ -41,7 +43,15 @@
     #addi $s2, $zero, 12 								# Set $s0 to 4
     
     li $t0, 0											# Set index to $t0, that starts with zero.
+    li $t1, 0
     li $t2, 0											# Set $t2 as sum and starts with 0
+    li $t3, 10											# Registrator used by making a multiplication in verificaCPF
+    li $t6, 11
+    li $t7, 11
+    li $t8, 11
+    li $s3, 0
+    li $s4, 0
+    li $s5, 11
     j loop
     
 loop:
@@ -92,12 +102,85 @@ printSeparators:
 	la $a0, Separators
 	syscall
 	addi $t0, $zero, 0
-	j end
+	j clearIndex
 	
-verificaCPF:
+verificaCPF1:
+	beq $t3, 1, somaResultadosCPF1						# if the number that we will multiply equals zero, jump to somaResultadosCPF1
 	lw $t1, CPF($t0)									# Load the number in the array
-	add $t2, $t2, $t1									# sum the numbers
-	addi $t0, $t0, 4
+	mulo $t4, $t1, $t3									# multiply numbers in the first verification
+	subi $t3, $t3, 1									# decrease the number that multiply each CPF digit
+	
+	sw $t4, CPF1($t0)									# Store int the array in the $t0 postition, the multiplication result
+	addi $t0, $t0, 4									# update the index
+	bne $t0, 36, verificaCPF1							# if $t0 not equal 36, exeecute the loop
+	li $t1, 0
+	addi $t0, $zero, 0
+	j somaResultadosCPF1
+
+somaResultadosCPF1:
+	lw $t1, CPF1($t0)									# Load the result of multiplication
+	add $t2, $t2, $t1									# increase the $t2 that be a sum
+	addi $t0, $t0, 4									# update the index
+	bne $t0, 36, somaResultadosCPF1						# if $t0 not equal 36, remake the loop
+	mulo $t5, $t2, 10
+	div $t5, $t6
+	mfhi $t6
+	
+	beq $t6, 10, atribuiResto1							# if the rest equals zero, jump to atribuiResto
+	j verificaCPF2
+
+verificaCPF2:
+	beq $t3, 1, somaResultadosCPF2						# if the number that we will multiply equals zero, jump to somaResultadosCPF1
+	lw $t1, CPF($t0)									# Load the number in the array
+	mulo $t4, $t1, $t8									# multiply numbers in the first verification
+	subi $t8, $t8, 1									# decrease the number that multiply each CPF digit
+	
+	sw $t4, CPF1($t0)									# Store int the array in the $t0 postition, the multiplication result
+	addi $t0, $t0, 4									# update the index
+	bne $t0, 36, verificaCPF1							# if $t0 not equal 36, exeecute the loop
+	li $t1, 0
+	addi $t0, $zero, 0
+	j somaResultadosCPF2
+
+somaResultadosCPF2:
+	lw $t1, CPF1($t0)									# Load the result of multiplication
+	add $t2, $t2, $t1									# increase the $t2 that be a sum
+	addi $t0, $t0, 4									# update the index
+	bne $t0, 36, somaResultadosCPF1						# if $t0 not equal 36, remake the loop
+	mulo $t5, $t2, 10
+	div $t5, $t7
+	mfhi $t7
+	
+	beq $t7, 10, atribuiResto2							# if the rest equals zero, jump to atribuiResto
+	j calculoDigito1
+
+calculoDigito1:
+	beq $t7, 0, digito01								# if the first rest equals 0, first digit is 0
+	beq $t7, 1, digito01								# if the first rest equals 1, first digit is 0
+	
+	sub $s3, $s5, $s3
+	j calculoDigito2
+	
+calculoDigito2:
+	beq $t7, 0, digito01								# if the second rest equals 0, second digit is 0
+	beq $t7, 1, digito01								# if the second rest equals 1, second digit is 0
+	
+	sub $s4, $s5, $s4
+	j end
+
+digito01:
+	li $s3, 0
+
+digito02:
+	li $s4, 0
+	
+atribuiResto1:
+	li $t6, 0											# $t6 receive zero
+	j verificaCPF2
+
+atribuiResto2:
+	li $t7, 0											# $t7 receive zero
+	
 end:
 	li $v0, 10											# End of the program
     syscall												# Call system
