@@ -3,7 +3,7 @@
 # Author: Gabriel Ribeiro Bernardi              #
 # Registration: 11821BCC036                     #
 # Start Date: 09/18/2019                        #
-# End Date: 09/18/2019                          #
+# End Date: 09/23/2019                          #
 # Programming Language: Assembly MIPS           #
 #################################################
 #Description (pt_BR): Fazer um programa que efetue o calculo dos digitos verificadores do CPF usando array de inteiros e funções.
@@ -14,7 +14,6 @@
 # #t1 register is used to load world
 # t2 register is used to sum numbers
 
-# Fazer a verificacao em relacao ao cpf, na funcao verificaCPF. Olhar o arquivo txt no mesmo local onde estava esse arquivo
 
 .data
     Separators: .asciiz "-----=====-----=====-----=====-----=====\n"
@@ -24,7 +23,9 @@
     cpfDigit: .space 44								# allocate a space for array to receive the 
     Input: .asciiz "Input CPF digits: "
     newline: .asciiz "\n"
+    space: .asciiz " "
     Output: .asciiz "The CPF numbers is: "
+    Hyphen: .asciiz "-"
     
 .text
     li $v0, 4											# Preparing to receive a String
@@ -46,15 +47,18 @@
     li $t1, 0
     li $t2, 0											# Set $t2 as sum and starts with 0
     li $t3, 10											# Registrator used by making a multiplication in verificaCPF
+    li $t4, 0
+    li $t5, 0
     li $t6, 11
     li $t7, 11
     li $t8, 11
     li $s3, 0
     li $s4, 0
-    li $s5, 11
-    j loop
+    li $s5, 44											# const value for verification
+    li $s6, 40											# const value for verification
+    j loopLeitura
     
-loop:
+loopLeitura:
 	beq $t0, 36, clearIndex								# Check if the index is 36, because if the index number is 32, we store the last number on the array
 	
 	li $v0, 4											# Preparing to receive a String
@@ -65,34 +69,11 @@ loop:
 	syscall												# Calling system
 	move $s0, $v0
 	sw $s0, CPF($t0)									# Store int the array in the $t0 postition, the typed number
+	sw $s0, cpfDigit($t0)
 	addi $t0, $t0, 4									# Add 4 to index number
 	
-	j loop												# Jump to loop
-
-clearIndex:
-	addi $t0, $zero, 0
-	li $v0, 4
-	la $a0, Separators
-	syscall
-	li $v0, 4											# Preparing to receive a String
-    la $a0, Output										# Print the Input label
-    syscall												# Execute the previous instructions
-	#li $t0, 0
-	#j printSeparators
-	j printArray
+	j loopLeitura										# Jump to loop
 						
-printArray:
-	beq $t0, 36, end
-	lw $t1, CPF($t0)									# Load the number in index2 position on the array and store in $t1 registrator
-	li $v0, 1											# Print an integer number
-	move $a0, $t1										# Move the number in index position to $a0 to print
-	li $v0, 1											# Print an integer number
-	syscall												# Call system
-	
-	addi $t0, $t0, 4									# Increase by 4 the index
-	
-	beq $t0, 36, printSeparators						# If the index1 is greater or equals 36 jump to printSeparators
-	j printArray										# Else jump to printArray
 	
 printSeparators: 
 	li $v0, 4											# Preparing to receive a string
@@ -104,8 +85,31 @@ printSeparators:
 	addi $t0, $zero, 0
 	j clearIndex
 	
+printSeparators1: 
+	li $v0, 4											# Preparing to receive a string
+	la $a0, newline										# Print the label newLine
+	syscall												# Calling system
+	li $v0, 4
+#	la $a0, Separators
+	syscall
+	addi $t0, $zero, 0
+	j verificaCPF1
+	
+clearIndex:
+	addi $t0, $zero, 0
+	li $v0, 4
+	la $a0, Separators
+	syscall
+	li $v0, 4											# Preparing to receive a String
+    la $a0, Output										# Print the Input label
+    syscall												# Execute the previous instructions
+	#li $t0, 0
+	#j printSeparators
+	j printSeparators1
+
 verificaCPF1:
 	beq $t3, 1, somaResultadosCPF1						# if the number that we will multiply equals zero, jump to somaResultadosCPF1
+	
 	lw $t1, CPF($t0)									# Load the number in the array
 	mulo $t4, $t1, $t3									# multiply numbers in the first verification
 	subi $t3, $t3, 1									# decrease the number that multiply each CPF digit
@@ -113,8 +117,9 @@ verificaCPF1:
 	sw $t4, CPF1($t0)									# Store int the array in the $t0 postition, the multiplication result
 	addi $t0, $t0, 4									# update the index
 	bne $t0, 36, verificaCPF1							# if $t0 not equal 36, exeecute the loop
-	li $t1, 0
-	addi $t0, $zero, 0
+	li $t0, 0											# reset index
+	li $t1, 0											# values received from CPF array
+	#addi $t0, $zero, 0
 	j somaResultadosCPF1
 
 somaResultadosCPF1:
@@ -122,12 +127,15 @@ somaResultadosCPF1:
 	add $t2, $t2, $t1									# increase the $t2 that be a sum
 	addi $t0, $t0, 4									# update the index
 	bne $t0, 36, somaResultadosCPF1						# if $t0 not equal 36, remake the loop
+	li $t0, 0
 	mulo $t5, $t2, 10
 	div $t5, $t6
 	mfhi $t6
 	
 	beq $t6, 10, atribuiResto1							# if the rest equals zero, jump to atribuiResto
-	j verificaCPF2
+	sw $t6, cpfDigit($s6)								# Store int the array in the $t0 postition, the multiplication result
+	
+	#j verificaCPF2
 
 verificaCPF2:
 	beq $t3, 1, somaResultadosCPF2						# if the number that we will multiply equals zero, jump to somaResultadosCPF1
@@ -137,7 +145,8 @@ verificaCPF2:
 	
 	sw $t4, CPF1($t0)									# Store int the array in the $t0 postition, the multiplication result
 	addi $t0, $t0, 4									# update the index
-	bne $t0, 36, verificaCPF1							# if $t0 not equal 36, exeecute the loop
+	bne $t0, 36, verificaCPF2							# if $t0 not equal 36, exeecute the loop
+	li $t0, 0
 	li $t1, 0
 	addi $t0, $zero, 0
 	j somaResultadosCPF2
@@ -146,12 +155,14 @@ somaResultadosCPF2:
 	lw $t1, CPF1($t0)									# Load the result of multiplication
 	add $t2, $t2, $t1									# increase the $t2 that be a sum
 	addi $t0, $t0, 4									# update the index
-	bne $t0, 36, somaResultadosCPF1						# if $t0 not equal 36, remake the loop
+	bne $t0, 36, somaResultadosCPF2						# if $t0 not equal 36, remake the loop
+	li $t0, 0
 	mulo $t5, $t2, 10
 	div $t5, $t7
 	mfhi $t7
 	
 	beq $t7, 10, atribuiResto2							# if the rest equals zero, jump to atribuiResto
+	sw $t7, cpfDigit($s5)									# Store int the array in the $t0 postition, the multiplication result
 	j calculoDigito1
 
 calculoDigito1:
@@ -166,13 +177,16 @@ calculoDigito2:
 	beq $t7, 1, digito01								# if the second rest equals 1, second digit is 0
 	
 	sub $s4, $s5, $s4
-	j end
+	j printDigits
 
 digito01:
-	li $s3, 0
+	li $s3, 0											# seting rest to
+	sw $s3, cpfDigit($s6)									# Store int the array in the $t0 postition, the multiplication result
+	
 
 digito02:
 	li $s4, 0
+	sw $s4, cpfDigit($s5)									# Store int the array in the $t0 postition, the multiplication result
 	
 atribuiResto1:
 	li $t6, 0											# $t6 receive zero
@@ -180,6 +194,38 @@ atribuiResto1:
 
 atribuiResto2:
 	li $t7, 0											# $t7 receive zero
+	li $t0, 0
+	j printDigits
+	
+printDigits:
+	beq $t0, 44, end
+	lw $t1, cpfDigit($t0)								# Load the number in index2 position on the array and store in $t1 registrator
+	li $v0, 1											# Print an integer number
+	move $a0, $t1										# Move the number in index position to $a0 to print
+	li $v0, 1											# Print an integer number
+	syscall												# Call system
+	
+	addi $t0, $t0, 4									# Increase by 4 the index
+	
+	beq $t0, 36, hyphen
+	beq $t0, 44, printSeparators2						# If the index1 is greater or equals 36 jump to printSeparators
+	j printDigits										# Else jump to printArray
+
+hyphen:
+	li $v0, 4
+	la $a0, Hyphen
+	syscall
+	j printDigits
+
+printSeparators2: 
+	li $v0, 4											# Preparing to receive a string
+	la $a0, newline										# Print the label newLine
+	syscall												# Calling system
+	li $v0, 4
+	la $a0, Separators
+	syscall
+	addi $t0, $zero, 0
+	j end
 	
 end:
 	li $v0, 10											# End of the program
