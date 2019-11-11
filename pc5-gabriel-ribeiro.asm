@@ -8,7 +8,7 @@
 #################################################
 
 # The description of this exercice is inside github repository, on this following link: https://github.com/gabrielrbernardi/AOC1_MIPS/blob/master/pc5-Description.txt
-
+# This program find the roots of second degree equation, with INTEGER VALUES
 #notes:
     #delta = b*b - 4*a*c
     #bhaskara = (-b ± sqrt(delta))/2*a
