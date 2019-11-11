@@ -3,10 +3,11 @@
 # Author: Gabriel Ribeiro Bernardi              #
 # Registration: 11821BCC036                     #
 # Start Date: 11/09/2019                        #
-# End Date: 11/10/2019                          #
+# End Date: 11/11/2019                          #
 # Programming Language: Assembly MIPS           #
 #################################################
 
+#reg: $sp: stack pointer, ($sp): stack
 #reg: $t0, $t1, $t2: coefficients of the equation
 # Inside delta function
     #reg: $t3: delta partial
@@ -21,20 +22,29 @@
     #reg: $a0, $v0: registrators used to print the string
     #reg: $t6: receive the multiplication
     #reg: $t7: the quotient of division
-# Inside sqrt function
-    #reg: $t4, $t5: temp and sqrt variables
-    #reg: $t6, $t7: aux registrators
 # Inside bhaskaraPos function
     #reg: $a0, $v0: registrators used to print the string
-    #reg: $t3, $t4: root one and root 2
+    #reg: $t3, $t4: root one and root two
     #reg: $t5: square root value of delta
     #reg: $t6: receive the multiplication
     #reg: $t7: the quotient of division
     #reg: $t8, $t9: receive values of sum operation and subtraction
+# Inside sqrt function
+    #reg: $t3: previous value of delta, but start to be the result of subtraction
+    #reg: $t4: odd values
+    #reg: $t5: counter, that later will be the square root
 
 .text
     j main
     delta:
+        # taking from the values of the coefficients
+        lw $t2, ($sp)		                         # store in $t2 registrator the top of stack
+        addi $sp, $sp, 4                             # increment stack pointer by 4 
+        lw $t1, ($sp)		                         # store in $t1 registrator the top of stack
+        addi $sp, $sp, 4                             # increment stack pointer by 4 
+        lw $t0, ($sp)		                         # store in $t0 registrator the top of stack
+        addi $sp, $sp, 4                             # increment stack pointer by 4 
+
         mulo $t5, $t0, $t2
         mulo $t5, $t5, 4
         mulo $t4, $t1, $t1
@@ -129,39 +139,51 @@
         sub $t3, $t3, $t4                            # subtracting $t3 by $t4 and storing in $t3
         add $t4, $t4, 2                              # taking only the odd values
         add $t5, $t5, 1                              # updating counter
-        beq $t3, $zero, bhaskaraPos                  # branch to bhaskaraPos if $t3 equals zero
+        beqz $t3, bhaskaraPos                        # branch to bhaskaraPos if $t3 equals zero        
         j sqrt
 
     #Main program    
     main:
-        li $v0, 4                                        # preparing to print an string
-        la $a0, Cabecalho                                # printing Cabecalho label
+        li $v0, 4                                    # preparing to print an string
+        la $a0, Cabecalho                            # printing Cabecalho label
         syscall
 
-        li $v0, 4                                        # preparing to print an string
-        la $a0, CoefA                                    # printing CoefA label
+        li $v0, 4                                    # preparing to print an string
+        la $a0, CoefA                                # printing CoefA label
         syscall
-        li $v0, 5                                        # read an integer number (a coefficient) from keyboard
-        syscall                                          # calling system
+        li $v0, 5                                    # read an integer number (a coefficient) from keyboard
+        syscall                                      # calling system
         move $t0, $v0
         
-        li $v0, 4                                        # preparing to print an string
-        la $a0, CoefB                                    # printing CoefB label
+        li $v0, 4                                    # preparing to print an string
+        la $a0, CoefB                                # printing CoefB label
         syscall
-        li $v0, 5                                        # read an integer number (b coefficient) from keyboard
-        syscall											 # calling system
+        li $v0, 5                                    # read an integer number (b coefficient) from keyboard
+        syscall										 # calling system
         move $t1, $v0
         
-        li $v0, 4                                        # preparing to print an string
-        la $a0, CoefC                                    # printing CoefC label
+        li $v0, 4                                    # preparing to print an string
+        la $a0, CoefC                                # printing CoefC label
         syscall
-        li $v0, 5                                        # read an integer number (c coefficient) from keyboard
-        syscall                                          # calling system
+        li $v0, 5                                    # read an integer number (c coefficient) from keyboard
+        syscall                                      # calling system
         move $t2, $v0
         
-        li $s2, 0
-        jal	delta				                         # jump to delta and save position to $ra 
-        jal	bhaskara    	            			     # jump to bhaskara and save position to $ra
+        # storing the coefficients values on the stack
+        addi $sp, $sp, -4                            # decrement stack pointer by 4
+        sw $t0, ($sp)                                # store $t0 to stack (push)
+        addi $sp, $sp, -4                            # decrement stack pointer by 4
+        sw $t1, ($sp)                                # store $t1 to stack (push)
+        addi $sp, $sp, -4                            # decrement stack pointer by 4
+        sw $t2, ($sp)                                # store $t2 to stack (push)
+
+        li $t0, 0                                    # setting the $t0 registrator to zero
+        li $t1, 0                                    # setting the $t1 registrator to zero
+        li $t2, 0                                    # setting the $t2 registrator to zero
+
+        # calling the following functions
+        jal	delta				                     # jump to delta and save position to $ra 
+        jal	bhaskara    	            			 # jump to bhaskara and save position to $ra
         li $v0, 4
         la $a0, Separators
         syscall
