@@ -1,0 +1,16 @@
+O presente PC é bem simples, quero que Vcs facam um algorimo que calcule as raizes de uma polinomio grau 2, sendo que:
+1) O Delta seja calculado especificamente por uma funcao, e os coeficientes das parcelas dos polinomios sejam passados via pilha (vejam que serao passados 3 numeros inteiros) e a funcao vai retornar um numero inteiro que é o delta.
+
+2) Com o delta calculado pela funcao descrita em (1), que será passado via pilha, para uma segunda funcao que esta sim, calculara as raizes e as retornara via pilha (vejam que aqui podem ser dois numeros inteiros ......).
+
+Entao, uma equacao como ax2+bx+c = 0, vc deverá fazer uma tela que será a entrada para os coeficientes a, b, c como a seguir:
+
+------- Tela -----
+Entre os coeficientes da equacao:
+a=
+b=
+c=
+
+Raizes
+x1 = 
+x2 =  
