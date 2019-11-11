@@ -7,6 +7,12 @@
 # Programming Language: Assembly MIPS           #
 #################################################
 
+# The description of this exercice is inside github repository, on this following link: https://github.com/gabrielrbernardi/AOC1_MIPS/blob/master/pc5-Description.txt
+
+#notes:
+    #delta = b*b - 4*a*c
+    #bhaskara = (-b ± sqrt(delta))/2*a
+
 #reg: $sp: stack pointer, ($sp): stack
 #reg: $t0, $t1, $t2: coefficients of the equation
 # Inside delta function
@@ -45,11 +51,11 @@
         lw $t0, ($sp)		                         # store in $t0 registrator the top of stack
         addi $sp, $sp, 4                             # increment stack pointer by 4 
 
-        mulo $t5, $t0, $t2
-        mulo $t5, $t5, 4
-        mulo $t4, $t1, $t1
+        mulo $t5, $t0, $t2                           # ($t5) = (a*c)
+        mulo $t5, $t5, 4                             # ($t5) = (4*($t5))
+        mulo $t4, $t1, $t1                           # ($t4) = b * b
 
-        sub $t3, $t4, $t5
+        sub $t3, $t4, $t5                            # ($t3) = ($t4)-($t5) 
         addi $sp, $sp, -4                            # decrement stack pointer by 4
         sw $t3, ($sp)                                # store $t3 to stack (push)
 
