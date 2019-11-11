@@ -9,9 +9,20 @@
 
 # The description of this exercice is inside github repository, on this following link: https://github.com/gabrielrbernardi/AOC1_MIPS/blob/master/pc5-Description.txt
 # This program find the roots of second degree equation, with INTEGER VALUES
-#notes:
+# Used references:
+    # https://faculty.kfupm.edu.sa/coe/mudawar/coe301/lab/COE301_Lab_7_MIPS_Functions.pdf
+    # https://courses.cs.washington.edu/courses/cse378/10sp/lectures/lec05-new.pdf
+    # https://stackoverflow.com/questions/556714/how-does-the-stack-work-in-assembly-language
+    # https://en.wikipedia.org/wiki/Stack_(abstract_data_type)
+
+# Informations about used registrators:
     #delta = b*b - 4*a*c
     #bhaskara = (-b ± sqrt(delta))/2*a
+
+# Values used to test
+    #case 1: delta > 0: a = 1, b = -5, c = 6
+    #case 2: delta == 0: a = 3, b = 6, c = 3
+    #case 3: delta < 0: a = 1, b = 2, c = 3
 
 #reg: $sp: stack pointer, ($sp): stack
 #reg: $t0, $t1, $t2: coefficients of the equation
@@ -43,7 +54,7 @@
 .text
     j main
     delta:
-        # taking from the values of the coefficients
+        # taking from the values of the coefficients, and free the stack
         lw $t2, ($sp)		                         # store in $t2 registrator the top of stack
         addi $sp, $sp, 4                             # increment stack pointer by 4 
         lw $t1, ($sp)		                         # store in $t1 registrator the top of stack
@@ -145,9 +156,20 @@
         sub $t3, $t3, $t4                            # subtracting $t3 by $t4 and storing in $t3
         add $t4, $t4, 2                              # taking only the odd values
         add $t5, $t5, 1                              # updating counter
-        beqz $t3, bhaskaraPos                        # branch to bhaskaraPos if $t3 equals zero        
+        beqz $t3, bhaskaraPos                        # branch to bhaskaraPos if $t3 equals zero
+        blt $t3, 0, deltaInvalido					 # brach to deltaInvalido if $t3 less than 0       
         j sqrt
-
+        
+	deltaInvalido:
+		li $v0, 4
+		la $a0, Erro2
+		syscall
+		j endProgram
+		
+	endProgram:
+		li $v0, 10									 # li with code 10 means that the execution ends
+		syscall										 # do it
+		
     #Main program    
     main:
         li $v0, 4                                    # preparing to print an string
@@ -193,15 +215,17 @@
         li $v0, 4
         la $a0, Separators
         syscall
+        j endProgram
 
 .data
-    Cabecalho: .asciiz "Digite os coeficientes da equacao:"
+    Cabecalho: .asciiz "Type only Integer values\nDigite os coeficientes da equacao:"
     CoefA: .asciiz "\na = "
     CoefB: .asciiz "b = "
     CoefC: .asciiz "c = "
     ValorDelta: .asciiz "Delta tem valor: "
     Separators: .asciiz "\n----------------------------\n"
     Erro1: .asciiz "\nNao possui raiz real"
+    Erro2: .asciiz "\nErro\nRaiz de delta nao e valor inteiro\n"
     Alerta1: .asciiz "\nPossui 2 raizes reais iguais\n"
     ResultDelta0: .asciiz "x1 e x2 = "
     ResultadoBhasPos: .asciiz "\nRaizes\n"
