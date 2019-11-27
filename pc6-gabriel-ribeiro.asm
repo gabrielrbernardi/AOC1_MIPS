@@ -56,8 +56,8 @@
         li $v0, 4               # preparing to receive a string
         la $a0, ending          # this instruction will print an ending label
         syscall                 # do it
-		li $v0, 10				# li with code 10 means that the execution ends
-		syscall					# do it
+        li $v0, 10				# li with code 10 means that the execution ends
+        syscall					# do it
 
     main:
         li $v0, 4               # preparing to print a string
