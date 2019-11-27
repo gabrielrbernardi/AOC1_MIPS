@@ -1,0 +1,32 @@
+O PC6 é um contador (pode ser incremento ou decremento -- defina no comeco do programa em comentarios) que vai invocar uma funcao e esta funcao vai imprimir o valor recebido via pilha, vai imprimir este valor e retornar o valor impresso via pilha.
+
+Se o valor passado para a funcao for 0 (zero) imprime esse valor e retorna. Se o valor for maior do que zero, usa a recursao ......
+
+Em um pseudo codigo, imagino algo assim:
+
+
+f_print(int X)
+{
+       printf ("%d", X)
+       if (X == 0) {
+              printf("\n")
+              return
+       }
+       else {
+            printf(" - ");
+            f_print(X - 1)
+       }
+}
+
+main
+{
+         fprintf("Print: ");
+         f_print (atoi(argv[1]));
+}
+
+
+A tela que vai aparecer no simulador, imagino algo como:
+
+X= 5
+
+Print: 5 - 4 - 3 - 2 - 1 - 0
